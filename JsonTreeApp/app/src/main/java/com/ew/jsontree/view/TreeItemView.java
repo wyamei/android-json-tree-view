@@ -82,10 +82,10 @@ public class TreeItemView extends LinearLayout {
             @Override
             public void onClick(View v) {
                 View childView = rootLayout.getChildAt(1);
-                if(childView!=null) {    
+                if(childView!=null) {
                     btnExpend.setText(childView.getVisibility() == VISIBLE ? "+" : "-");
                     childView.setVisibility(childView.getVisibility() == VISIBLE ? GONE : VISIBLE);
-                }
+                }   
             }
         });
     }
