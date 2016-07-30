@@ -48,6 +48,7 @@ public class JsonTreeView extends LinearLayout {
         addView(rootContainer);
             createTreeViewOfKeeepedOfOptimize(rootContainer, (LinkedHashMap<String, Object>) jsonMap);
         }catch (Throwable e){  //如何捕获StackOverflowError
+            //参考： http://www.jb51.net/article/81352.htm
             Log.e("error","栈溢出");
             Toast.makeText(getContext(),"层级过多不支持",Toast.LENGTH_SHORT).show();
         }
