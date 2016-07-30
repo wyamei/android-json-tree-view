@@ -3,16 +3,20 @@ package com.ew.jsontree.view;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ew.jsontree.R;
+import com.ew.jsontree.utils.Constants;
 import com.ew.jsontree.utils.JSONObjectKeeped;
 
 
@@ -34,72 +38,54 @@ public class JsonTreeView extends LinearLayout {
     }
 
     public JsonTreeView(Context context,Map<String,Object> jsonMap) {
+
         super(context);
+        try {
         rootContainer = new LinearLayout(getContext());
         rootContainer.setLayoutParams(new LayoutParams(-1,-1));
         rootContainer.setOrientation(VERTICAL);
         rootContainer.setBackgroundColor(Color.WHITE);
         addView(rootContainer);
-//        createTreeView(rootContainer, jsonMap);
-//        createTreeViewOfKeepedOptimize(rootContainer, (LinkedHashMap<String, Object>) jsonMap);
+            createTreeViewOfKeeepedOfOptimize(rootContainer, (LinkedHashMap<String, Object>) jsonMap);
+        }catch (Throwable e){  //如何捕获StackOverflowError
+            Log.e("error","栈溢出");
+            Toast.makeText(getContext(),"层级过多不支持",Toast.LENGTH_SHORT).show();
+        }
     }
 
     public JsonTreeView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    /**
-     * 创建的json tree view中节点顺序与输入的json string保持一致
-     * @param rootView
-     * @param jsonMap
-     */
-    public void createTreeViewOfKeeeped(LinearLayout rootView,LinkedHashMap<String,Object> jsonMap,Boolean ...isVirtualNode){
+    public void createTreeViewOfKeeepedOfOptimize(LinearLayout rootView, LinkedHashMap<String, Object> jsonMap, Boolean... isVirtualNode){
         level+=1;
         for(LinkedHashMap.Entry<String, Object> entry:jsonMap.entrySet()){
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.atom_flight_cfg_json_tree_item, null);
-            rootView.addView(view);
-            TextView tvNodeKey = (TextView)view.findViewById(R.id.atom_flight_tv_node_key);
-            TextView tvNodeSize = (TextView)view.findViewById(R.id.atom_flight_tv_node_size);
-            TextView tvColon = (TextView)view.findViewById(R.id.atom_flight_tv_colon);
-            TextView tvNodeValue = (TextView)view.findViewById(R.id.atom_flight_tv_node_value);
-            final LinearLayout llChildContainer = (LinearLayout)view.findViewById(R.id.atom_flight_ll_child_node_container);
-            if(level>4){
-                llChildContainer.setVisibility(GONE);
-            }
-            final Button btnExpend = (Button)view.findViewById(R.id.atom_flight_btn_expend);
-            btnExpend.setText(llChildContainer.getVisibility()==VISIBLE ? "-" : "+");
-            btnExpend.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    btnExpend.setText(llChildContainer.getVisibility() == VISIBLE ? "+" : "-");
-                    llChildContainer.setVisibility(llChildContainer.getVisibility()==VISIBLE ? GONE : VISIBLE);
-                }
-            });
-            tvNodeKey.setText(entry.getKey());
-            if(isVirtualNode!=null && isVirtualNode.length==1 && isVirtualNode[0]){  //若是虚拟节点则设置灰色
-                tvNodeKey.setTextColor(0xff7F8081);
-            }
+            TreeItemView view = new TreeItemView(getContext(), Constants.TREE_LAYOUT_TYPE_OPTIMIZE);
+            LinearLayout.LayoutParams lp = new LayoutParams(-2,-2);
+            lp.setMargins(50,0,0,0);
+            rootView.addView(view,lp);
+            String size = null,value = null,btnText = null;
+            boolean isExpend = level<=4?true:false;
+            String key = entry.getKey();
             Object obj = entry.getValue();
             if(obj instanceof JSONObjectKeeped){
                 LinkedHashMap<String,Object> map = ((JSONObjectKeeped)obj).getMap();
-                tvNodeSize.setText("{" + String.valueOf(map.size()) + "}");
-                tvNodeSize.setVisibility(VISIBLE);
+                size = "{" + String.valueOf(map.size()) + "}";
                 if(map.size()==0){
-                    btnExpend.setEnabled(false);
-                    btnExpend.setText("");
-                    llChildContainer.setVisibility(GONE);
+                    btnText = "";
+                    isExpend = false;
                 }
+                view.setData(key,size,value,btnText,isVirtualNode!=null && isVirtualNode.length==1 &&isVirtualNode[0],isExpend);
                 //创建子节点的tree
-                createTreeViewOfKeeeped(llChildContainer, map);
+                createTreeViewOfKeeepedOfOptimize(view, map);
             } else if(obj instanceof org.json.JSONArray){
                 org.json.JSONArray jsonArray = (org.json.JSONArray) obj;
-                tvNodeSize.setText("[" + String.valueOf(jsonArray.length()) + "]");
-                tvNodeSize.setVisibility(VISIBLE);
+                size = "[" + String.valueOf(jsonArray.length()) + "]";
                 if(jsonArray.length()==0){
-                    btnExpend.setEnabled(false);
-                    btnExpend.setText("");
-                    llChildContainer.setVisibility(GONE);
+                    btnText = "";
+                    isExpend = false;
                 }
+                view.setData(key,size,value,btnText,isVirtualNode!=null && isVirtualNode.length==1 &&isVirtualNode[0],isExpend);
                 for(int i=0;i<(jsonArray).length();i++){
                     Object each = null;
                     try {
@@ -111,22 +97,67 @@ public class JsonTreeView extends LinearLayout {
                         LinkedHashMap<String,Object> map = new LinkedHashMap<>();
                         map.put(String.valueOf(i),each);
                         //创建子节点的tree
-                        createTreeViewOfKeeeped(llChildContainer,map,true);
+                        createTreeViewOfKeeepedOfOptimize(view, map, true);
                     }
                 }
             } else{  //基础数据类型
-                btnExpend.setVisibility(GONE);
-                tvColon.setVisibility(VISIBLE);
-                tvNodeValue.setText(String.valueOf(obj));
-                tvNodeValue.setVisibility(VISIBLE);
-                //根据数据类型来设置value的颜色
-                if(obj instanceof String){
-                    tvNodeValue.setTextColor(0xff008000);
-                }else if(obj instanceof Integer || obj instanceof Double || obj instanceof Long){
-                    tvNodeValue.setTextColor(0xffff8c30);
-                }else if(obj instanceof Boolean){
-                    tvNodeValue.setTextColor(0xff3883FA);
+                value = String.valueOf(obj);
+                view.setData(key,size,value,btnText,isVirtualNode!=null && isVirtualNode.length==1 &&isVirtualNode[0],isExpend);
+            }
+        }
+        level-=1;
+    }
+
+
+    /**
+     * 创建的json tree view中节点顺序与输入的json string保持一致
+     * @param rootView
+     * @param jsonMap
+     */
+    public void createTreeViewOfKeeeped(LinearLayout rootView, LinkedHashMap<String, Object> jsonMap, Boolean... isVirtualNode){
+        level+=1;
+        for(LinkedHashMap.Entry<String, Object> entry:jsonMap.entrySet()){
+            TreeItemView view = new TreeItemView(getContext(),Constants.TREE_LAYOUT_TYPE_DEFAULT);
+            rootView.addView(view);
+            String size = null,value = null,btnText = null;
+            boolean isExpend = level<=4?true:false;
+            String key = entry.getKey();
+            Object obj = entry.getValue();
+            if(obj instanceof JSONObjectKeeped){
+                LinkedHashMap<String,Object> map = ((JSONObjectKeeped)obj).getMap();
+                size = "{" + String.valueOf(map.size()) + "}";
+                if(map.size()==0){
+                    btnText = "";
+                    isExpend = false;
                 }
+                view.setData(key,size,value,btnText,isVirtualNode!=null && isVirtualNode.length==1 &&isVirtualNode[0],isExpend);
+                //创建子节点的tree
+                createTreeViewOfKeeeped(view.getChildContainer(), map);
+            } else if(obj instanceof org.json.JSONArray){
+                org.json.JSONArray jsonArray = (org.json.JSONArray) obj;
+                size = "[" + String.valueOf(jsonArray.length()) + "]";
+                if(jsonArray.length()==0){
+                    btnText = "";
+                    isExpend = false;
+                }
+                view.setData(key,size,value,btnText,isVirtualNode!=null && isVirtualNode.length==1 &&isVirtualNode[0],isExpend);
+                for(int i=0;i<(jsonArray).length();i++){
+                    Object each = null;
+                    try {
+                        each = jsonArray.get(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if(each!=null){
+                        LinkedHashMap<String,Object> map = new LinkedHashMap<>();
+                        map.put(String.valueOf(i),each);
+                        //创建子节点的tree
+                        createTreeViewOfKeeeped(view.getChildContainer(), map, true);
+                    }
+                }
+            } else{  //基础数据类型
+                value = String.valueOf(obj);
+                view.setData(key, size, value, btnText, isVirtualNode != null && isVirtualNode.length == 1 && isVirtualNode[0], isExpend);
             }
         }
         level-=1;
@@ -141,7 +172,7 @@ public class JsonTreeView extends LinearLayout {
     public void createTreeView(LinearLayout rootView,Map<String,Object> jsonMap){
         level+=1;
         for(Map.Entry<String, Object> entry:jsonMap.entrySet()){
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.atom_flight_cfg_json_tree_item, null);
+            View view = LayoutInflater.from(getContext()).inflate(R.layout.json_tree_item, null);
             rootView.addView(view);
             TextView tvNodeKey = (TextView)view.findViewById(R.id.atom_flight_tv_node_key);
             TextView tvNodeSize = (TextView)view.findViewById(R.id.atom_flight_tv_node_size);
@@ -161,7 +192,7 @@ public class JsonTreeView extends LinearLayout {
             });
             Object obj = entry.getValue();
             if(obj.getClass().toString().equals("class com.alibaba.fastjson.JSONObject")){//array怎么处理
-                Map<String,Object> map = JsonUtils.fromBean(entry.getValue());
+                Map<String,Object> map =  (Map)JSON.toJSON(entry.getValue());
                 tvNodeKey.setText(entry.getKey());
                 tvNodeSize.setText("{" + String.valueOf(map.size()) + "}");
                 tvNodeSize.setVisibility(VISIBLE);
@@ -192,7 +223,6 @@ public class JsonTreeView extends LinearLayout {
                         createTreeView(llChildContainer,map);
                     }
                 }
-
             }
             if(obj instanceof String || obj instanceof Integer || obj instanceof Boolean){
                 btnExpend.setVisibility(GONE);

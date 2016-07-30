@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/atom_flight_ll_parent_node_container"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/ew_ll_parent_node_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/atom_flight_btn_expend"
+            android:id="@+id/ew_btn_expend"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginRight="5dp"
             android:padding="0dp"
-            android:text="-"/>
+            android:text="+"/>
 
         <TextView
-            android:id="@+id/atom_flight_tv_node_key"
+            android:id="@+id/ew_tv_node_key"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="demo///bstatus"/>
 
         <TextView
-            android:id="@+id/atom_flight_tv_node_size"
+            android:id="@+id/ew_tv_node_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -33,7 +35,7 @@
             tools:visibility="visible"/>
 
         <TextView
-            android:id="@+id/atom_flight_tv_colon"
+            android:id="@+id/ew_tv_colon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -44,7 +46,7 @@
             tools:visibility="visible"/>
 
         <TextView
-            android:id="@+id/atom_flight_tv_node_value"
+            android:id="@+id/ew_tv_node_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -52,4 +54,15 @@
             tools:visibility="visible"
             android:text="demo///-1"/>
 
-</LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ew_ll_child_node_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="50dp"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+</merge>
