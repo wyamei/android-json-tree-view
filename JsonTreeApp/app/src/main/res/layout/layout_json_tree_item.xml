@@ -55,14 +55,5 @@
             android:text="demo///-1"/>
 
     </LinearLayout>
-    <LinearLayout
-        android:id="@+id/ew_ll_child_node_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="50dp"
-        android:orientation="vertical">
-
-    </LinearLayout>
 
 </merge>

@@ -9,7 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ew.jsontree.R;
-import com.ew.jsontree.utils.Constants;
 
 /**
  * Created by WYM on 2016/7/30.
@@ -22,18 +21,13 @@ public class TreeItemView extends LinearLayout {
     private TextView tvNodeSize;
     private TextView tvColon;
     private TextView tvNodeValue;
-    private LinearLayout llChildContainer;
 
-    public TreeItemView(Context context,int type) {
+
+    public TreeItemView(Context context) {
         super(context);
         LayoutInflater.from(context).inflate(R.layout.layout_json_tree_item, this, true);
         this.setOrientation(VERTICAL);
-
-        if(type== Constants.TREE_LAYOUT_TYPE_DEFAULT){
-            initViewOfDefault();
-        }else if(type==Constants.TREE_LAYOUT_TYPE_OPTIMIZE){
-            initViewOfOptimize();
-        }
+        initView();
     }
 
     public TreeItemView(Context context, AttributeSet attrs) {
@@ -41,40 +35,16 @@ public class TreeItemView extends LinearLayout {
     }
 
     /**
-     * 初始化布局
-     */
-    public void initViewOfDefault(){
-        rootLayout = (LinearLayout)getRootView();
-        btnExpend = (Button)this.findViewById(R.id.ew_btn_expend);
-        tvNodeKey= (TextView)this.findViewById(R.id.ew_tv_node_key);
-        tvNodeSize= (TextView)this.findViewById(R.id.ew_tv_node_size);
-        tvColon= (TextView)this.findViewById(R.id.ew_tv_colon);
-        tvNodeValue= (TextView)this.findViewById(R.id.ew_tv_node_value);
-        llChildContainer= (LinearLayout)this.findViewById(R.id.ew_ll_child_node_container);
-
-        btnExpend.setText(llChildContainer.getVisibility()==VISIBLE ? "-" : "+");
-        btnExpend.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnExpend.setText(llChildContainer.getVisibility() == VISIBLE ? "+" : "-");
-                llChildContainer.setVisibility(llChildContainer.getVisibility()==VISIBLE ? GONE : VISIBLE);
-            }
-        });
-    }
-
-    /**
      * 对layout的层级进行了优化
      * 可以支持27层级的json结构
      */
-    public void initViewOfOptimize(){
+    public void initView(){
         rootLayout = (LinearLayout)getRootView();
         btnExpend = (Button)this.findViewById(R.id.ew_btn_expend);
         tvNodeKey= (TextView)this.findViewById(R.id.ew_tv_node_key);
         tvNodeSize= (TextView)this.findViewById(R.id.ew_tv_node_size);
         tvColon= (TextView)this.findViewById(R.id.ew_tv_colon);
         tvNodeValue= (TextView)this.findViewById(R.id.ew_tv_node_value);
-        llChildContainer= (LinearLayout)this.findViewById(R.id.ew_ll_child_node_container);
-        rootLayout.removeView(llChildContainer);
 
         View childView = rootLayout.getChildAt(1);
         btnExpend.setText(childView!=null && childView.getVisibility()==VISIBLE ? "-" : "+");
@@ -82,7 +52,7 @@ public class TreeItemView extends LinearLayout {
             @Override
             public void onClick(View v) {
                 View childView = rootLayout.getChildAt(1);
-                if(childView!=null) {   
+                if(childView!=null) {
                     btnExpend.setText(childView.getVisibility() == VISIBLE ? "+" : "-");
                     childView.setVisibility(childView.getVisibility() == VISIBLE ? GONE : VISIBLE);
                 }
@@ -115,11 +85,7 @@ public class TreeItemView extends LinearLayout {
         }
         View childView = rootLayout.getChildAt(1);
         if(childView!=null){
-            childView.setVisibility(isExpend?VISIBLE:GONE);
+            childView.setVisibility(isExpend ? VISIBLE : GONE);
         }
-    }
-
-    public LinearLayout getChildContainer(){
-        return llChildContainer;
     }
 }
