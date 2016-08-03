@@ -67,7 +67,7 @@ public class JsonTreeView extends LinearLayout {
                     btnText = "";
                     isExpend = false;
                 }
-                view.setData(key+level,size,value,btnText,isVirtualNode!=null && isVirtualNode.length==1 &&isVirtualNode[0],isExpend);
+                view.setData(key,size,value,btnText,isVirtualNode!=null && isVirtualNode.length==1 &&isVirtualNode[0],isExpend);
                 //创建子节点的tree
                 createTreeViewOfKeeepedOfOptimize(view, map);
             } else if(obj instanceof org.json.JSONArray){

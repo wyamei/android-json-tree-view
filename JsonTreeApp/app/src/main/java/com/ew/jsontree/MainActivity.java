@@ -15,14 +15,24 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button btn = (Button) this.findViewById(R.id.btn1);
+        Button btn1 = (Button) this.findViewById(R.id.btn1);
+        Button btn2 = (Button) this.findViewById(R.id.btn2);
 
-        btn.setOnClickListener(new View.OnClickListener() {
+        btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                     Intent intent = new Intent();
                     intent.setClass(MainActivity.this, JsonTreeActivity.class);
                     startActivity(intent);
+            }
+        });
+
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, AdvancedJsonTreeActivity.class);
+                startActivity(intent);
             }
         });
     }
