@@ -18,6 +18,7 @@ import java.util.Map;
  * 支持的json层级没有限制，理论上支持无限层级
  * Created by WYM on 2016/8/1.
  */
+
 public class AdvancedJsonTreeView extends LinearLayout {
 
     private int level = 0;
